@@ -2,7 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
-import { ScryfallCard, ScryfallList, SearchOptions } from '../models/scryfall.types';
+import {
+  ScryfallCard,
+  ScryfallList,
+  SearchOptions,
+} from '../models/scryfall.types';
+
+import { SCRYFALL_API_BASE_URL } from '../constants/scryfall.constants';
 
 /**
  * HTTP client for the Scryfall REST API.
@@ -46,6 +52,6 @@ export class ScryfallApiService {
    * HINT: Return typed Observable<ScryfallCard> from HttpClient.get.
    */
   getCardById(id: string): Observable<ScryfallCard> {
-    return throwError(() => new Error('TODO: Implement getCardById'));
+    return this.http.get<ScryfallCard>(`${SCRYFALL_API_BASE_URL}/cards/${id}`);
   }
 }

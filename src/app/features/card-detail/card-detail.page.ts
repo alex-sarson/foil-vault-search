@@ -1,4 +1,9 @@
-import { Component, inject } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  runInInjectionContext,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
@@ -6,6 +11,8 @@ import { MatListModule } from '@angular/material/list';
 import { CardImageComponent } from './components/card-image/card-image.component';
 import { CardFacesComponent } from './components/card-faces/card-faces.component';
 import { CardLegalitiesComponent } from './components/card-legalities/card-legalities.component';
+
+import { ScryfallApiService } from '../../core/services/scryfall-api.service';
 
 @Component({
   selector: 'app-card-detail-page',
@@ -25,27 +32,32 @@ import { CardLegalitiesComponent } from './components/card-legalities/card-legal
 
       <mat-card-content>
         <p>
-          Load card from router state, cache, or API (in that order). Replace this placeholder
-          with a full detail layout.
+          Load card from router state, cache, or API (in that order). Replace
+          this placeholder with a full detail layout.
         </p>
 
         <mat-list>
           <div mat-subheader>Your TODO checklist</div>
-          <mat-list-item>Implement getCardById() in ScryfallApiService (Phase 1)</mat-list-item>
-          <mat-list-item>Load card from navigation state or API fallback</mat-list-item>
+          <mat-list-item
+            >Implement getCardById() in ScryfallApiService (Phase
+            1)</mat-list-item
+          >
+          <mat-list-item
+            >Load card from navigation state or API fallback</mat-list-item
+          >
           <mat-list-item>Render single- and double-faced layouts</mat-list-item>
-          <mat-list-item>Wire CardImageComponent, CardFacesComponent, CardLegalitiesComponent</mat-list-item>
-          <mat-list-item>Back navigation preserving search context</mat-list-item>
+          <mat-list-item
+            >Wire CardImageComponent, CardFacesComponent,
+            CardLegalitiesComponent</mat-list-item
+          >
+          <mat-list-item
+            >Back navigation preserving search context</mat-list-item
+          >
         </mat-list>
 
         <app-card-image />
         <app-card-faces />
         <app-card-legalities />
-
-        @if (false) {
-          <!-- EXAMPLE (disabled): route param + service -->
-          <!-- inject(ScryfallApiService).getCardById(cardId).subscribe(console.log) -->
-        }
       </mat-card-content>
     </mat-card>
   `,
@@ -57,9 +69,20 @@ import { CardLegalitiesComponent } from './components/card-legalities/card-legal
     }
   `,
 })
-export class CardDetailPage {
+export class CardDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly scryfallApi = inject(ScryfallApiService);
 
-  /** Proves ActivatedRoute param reading works — replace with real loading logic. */
   readonly cardId = this.route.snapshot.paramMap.get('id') ?? '(none)';
+
+  ngOnInit(): void {
+    if (this.cardId === '(none)') {
+      return;
+    }
+
+    this.scryfallApi.getCardById(this.cardId).subscribe({
+      next: (card) => console.log('Scryfall card:', card),
+      error: (err) => console.error('Failed to load card:', err),
+    });
+  }
 }
