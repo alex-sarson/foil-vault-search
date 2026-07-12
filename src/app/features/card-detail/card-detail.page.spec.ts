@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute } from '@angular/router';
 
 import { CardDetailPage } from './card-detail.page';
+import { ScryfallApiService } from '../../core/services/scryfall-api.service';
+import { of } from 'rxjs';
 
 describe('CardDetailPage', () => {
   let fixture: ComponentFixture<CardDetailPage>;
@@ -15,6 +17,14 @@ describe('CardDetailPage', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: { paramMap: { get: () => 'test-card-id' } },
+          },
+        },
+        {
+          provide: ScryfallApiService,
+          useValue: {
+            getCardById: jasmine
+              .createSpy('getCardById')
+              .and.returnValue(of({})),
           },
         },
       ],

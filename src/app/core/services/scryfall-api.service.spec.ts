@@ -1,8 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import {
+  provideHttpClientTesting,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 
 import { ScryfallApiService } from './scryfall-api.service';
+import { ScryfallCardBuilder } from '../../testing/builders/scryfall-card.builder';
+import { ScryfallCard } from '../models/scryfall.types';
+import { expectOneScryfallCard } from '../../testing/helpers/http-test.helpers';
 
 describe('ScryfallApiService', () => {
   let service: ScryfallApiService;
@@ -35,8 +41,17 @@ describe('ScryfallApiService', () => {
   });
 
   // TODO(test-learn): Un-skip after implementing getCardById in Phase 1
-  xit('getCardById should GET /cards/:id', () => {
+  it('getCardById should GET /cards/:id', () => {
     // HINT: use ScryfallCardBuilder and expectOneScryfallCard helper
-    fail('TODO: Implement this test');
+    const id = 'abc';
+    const expected = ScryfallCardBuilder.create().withId(id).build();
+    let result: ScryfallCard | undefined;
+
+    service.getCardById(id).subscribe((card) => (result = card));
+
+    const req = expectOneScryfallCard(httpMock, id);
+
+    req.flush(expected);
+    expect(result).toEqual(expected);
   });
 });

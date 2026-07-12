@@ -8,17 +8,17 @@ Parallel learning track for Jasmine + Karma unit tests. Un-skip (`xit` → `it`)
 
 ## React testing → Angular testing
 
-| React (Jest + RTL) | Angular (Jasmine + Karma) |
-|--------------------|-------------------------|
-| `describe` / `it` | Same — Jasmine uses identical blocks |
-| `it.skip` / `test.skip` | `xit` or `xdescribe` |
-| `render(<Component />)` | `TestBed.createComponent(Component)` → `fixture` |
-| `screen.getByRole(...)` | `fixture.nativeElement.querySelector(...)` or `DebugElement` |
-| `fireEvent.click(...)` | `button.click()` on native element, or `triggerEventHandler` |
-| `jest.mock('./api')` | `providers: [{ provide: ApiService, useValue: mock }]` |
-| MSW / `fetch` mock | `HttpTestingController` + `req.flush(body)` |
-| `@testing-library/react` `waitFor` | Often unnecessary; use `fakeAsync` + `tick()` for timers |
-| Import component directly | `TestBed.configureTestingModule({ imports: [Component] })` |
+| React (Jest + RTL)                 | Angular (Jasmine + Karma)                                    |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `describe` / `it`                  | Same — Jasmine uses identical blocks                         |
+| `it.skip` / `test.skip`            | `xit` or `xdescribe`                                         |
+| `render(<Component />)`            | `TestBed.createComponent(Component)` → `fixture`             |
+| `screen.getByRole(...)`            | `fixture.nativeElement.querySelector(...)` or `DebugElement` |
+| `fireEvent.click(...)`             | `button.click()` on native element, or `triggerEventHandler` |
+| `jest.mock('./api')`               | `providers: [{ provide: ApiService, useValue: mock }]`       |
+| MSW / `fetch` mock                 | `HttpTestingController` + `req.flush(body)`                  |
+| `@testing-library/react` `waitFor` | Often unnecessary; use `fakeAsync` + `tick()` for timers     |
+| Import component directly          | `TestBed.configureTestingModule({ imports: [Component] })`   |
 
 **TestBed** is a mini Angular app built per test file. You declare which component to test, which real modules to import, and which services to replace with mocks. Unlike Jest auto-mocking, **you must list providers explicitly** — if a component injects `ScryfallApiService`, the test must either provide HTTP or mock that service.
 
@@ -49,6 +49,7 @@ For each phase:
 **Goal:** Run tests, understand TestBed, read one spec stub.
 
 **Steps:**
+
 1. Run `npm test` (or `ng test --no-watch --browsers=ChromeHeadless` for CI-style)
 2. Confirm all **enabled** tests pass — only smoke `should create` tests, everything else is `xit`
 3. Open `src/app/core/services/scryfall-api.service.spec.ts` and read the structure:
@@ -69,6 +70,7 @@ For each phase:
 **Prerequisites:** App Phase 1 (`getCardById` implemented in the service).
 
 **Files to edit:**
+
 - `src/app/core/services/scryfall-api.service.spec.ts`
 
 **Goal:** Un-skip and implement `getCardById should GET /cards/:id`.
@@ -79,7 +81,7 @@ For each phase:
 2. Remove the `fail('TODO: ...')` line.
 3. **Arrange** — build the fake API response:
    ```ts
-   const id = 'abc';
+   const id = "abc";
    const expected = ScryfallCardBuilder.create().withId(id).build();
    let result: ScryfallCard | undefined;
    ```
@@ -100,7 +102,7 @@ For each phase:
    expect(result).toEqual(expected);
    ```
 
-**Common mistake:** Calling `expectOneScryfallCard` *before* `.subscribe()`. The request does not exist until you subscribe — you'll get `found none`.
+**Common mistake:** Calling `expectOneScryfallCard` _before_ `.subscribe()`. The request does not exist until you subscribe — you'll get `found none`.
 
 **Common mistake:** Using different IDs in `withId(...)`, `getCardById(...)`, and `expectOneScryfallCard(...)`. Use the same `id` variable everywhere.
 
@@ -125,6 +127,7 @@ NullInjectorError: No provider for HttpClient!
 This is **expected**, not a mistake on your part. Component tests need the same dependencies as the component, or mocks for them. Full detail-page testing comes in T5; this is a minimal fix to keep smoke tests passing.
 
 **Files to edit:**
+
 - `src/app/features/card-detail/card-detail.page.spec.ts`
 
 **Goal:** Keep `should create` passing. Leave the other two specs as **`xit`** until T5.
@@ -133,6 +136,7 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 
 1. Confirm `should read route param id` and `should load card from service` are still **`xit`** (not `it`).
 2. Add a mock `ScryfallApiService` to `providers`:
+
    ```ts
    import { of } from 'rxjs';
    import { ScryfallApiService } from '../../core/services/scryfall-api.service';
@@ -145,6 +149,7 @@ This is **expected**, not a mistake on your part. Component tests need the same 
      },
    },
    ```
+
    Returning `of({})` is enough for the smoke test — `ngOnInit` subscribes without error. T5 will use a real card object.
 
 **React comparison:** Same as `jest.mock('../api', () => ({ fetchCard: jest.fn().mockResolvedValue({}) }))` — replace the module at the injector level.
@@ -160,11 +165,13 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 **Prerequisites:** App Phase 2 (`searchCards` implemented).
 
 **Files to edit:**
+
 - `src/app/core/services/scryfall-api.service.spec.ts`
 
 **Goal:** Un-skip both search tests.
 
 **Hints:**
+
 - Success: `ScryfallListBuilder.create().withDefaultCards(2).build()` for the flushed response
 - Subscribe to `searchCards('lightning')` first, then `expectOneScryfallSearch(httpMock, 'lightning')`
 - Error test: subscribe, capture request, call `flushScryfallError(req)` for zero-results 404
@@ -181,6 +188,7 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 **Prerequisites:** App Phase 3 (search UI components implemented).
 
 **Files to edit:**
+
 - `src/app/features/search/components/search-bar/search-bar.component.spec.ts`
 - `src/app/features/search/components/card-tile/card-tile.component.spec.ts`
 - `src/app/features/search/components/card-grid/card-grid.component.spec.ts`
@@ -188,6 +196,7 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 **Goal:** Test input/output behavior in isolation — like RTL tests that pass props and assert callbacks.
 
 **Hints:**
+
 - `fixture.componentRef.setInput('card', card)` — sets a signal `input()` from the test (like re-rendering with new props)
 - Subscribe to `component.searchQuery.subscribe(...)` or `spyOn` the output emitter
 - Query DOM with `fixture.nativeElement.querySelector('img')` — like `container.querySelector`
@@ -204,11 +213,13 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 **Prerequisites:** App Phase 4 (URL state sync).
 
 **Files to edit:**
+
 - `src/app/features/search/search.page.spec.ts`
 
 **Goal:** Test query param sync and navigation — like testing `useSearchParams` behavior.
 
 **Hints:**
+
 - Use `setupRouterTesting()` and `navigateWithQueryParams()` from `testing/helpers/router-test.helpers.ts`
 - Or mock `ActivatedRoute` with `queryParamMap` returning a `ParamMap` stub
 - Provide mock `ScryfallApiService` if the search page calls the API on init
@@ -224,11 +235,13 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 **Prerequisites:** App Phase 5 (card detail UI).
 
 **Files to edit:**
+
 - `src/app/features/card-detail/card-detail.page.spec.ts`
 
 **Goal:** Un-skip remaining specs; mock service + route param; assert card renders in the DOM.
 
 **Hints:**
+
 - Expand the T1b mock: `getCardById` returns `of(cardDetailSample)` from `testing/fixtures/`
 - `ActivatedRoute` mock already provides `paramMap.get('id')` — assert `cardId` matches
 - After `detectChanges()`, query for the card name in the template
@@ -245,11 +258,13 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 **Prerequisites:** Stretch goals implemented.
 
 **Files to edit:**
+
 - `src/app/core/services/card-cache.service.spec.ts`
 - `src/app/core/services/search-rate-limiter.service.spec.ts`
 - `src/app/features/search/components/search-bar/search-bar.component.spec.ts` (debounce)
 
 **Hints:**
+
 - Cache: set then get, evict, assert undefined
 - Debounce: wrap in `fakeAsync(() => { ... tick(300); ... })` — like Jest fake timers
 - Rate limiter: queue two requests, assert spacing with `tick(RATE_LIMIT_MS)`
@@ -264,15 +279,15 @@ This is **expected**, not a mistake on your part. Component tests need the same 
 
 You write specs that **use** these — you don't need to build them:
 
-| Helper | Location | Purpose |
-|--------|----------|---------|
-| `ScryfallCardBuilder` | `testing/builders/scryfall-card.builder.ts` | Fluent test card factory |
-| `ScryfallListBuilder` | `testing/builders/scryfall-list.builder.ts` | Paginated list factory |
-| `expectOneScryfallSearch` | `testing/helpers/http-test.helpers.ts` | Assert search HTTP call |
-| `expectOneScryfallCard` | `testing/helpers/http-test.helpers.ts` | Assert detail HTTP call |
-| `flushScryfallError` | `testing/helpers/http-test.helpers.ts` | Simulate 404 error body |
-| `setupRouterTesting` | `testing/helpers/router-test.helpers.ts` | RouterTestingHarness setup |
-| `navigateWithQueryParams` | `testing/helpers/router-test.helpers.ts` | Navigate with query string |
+| Helper                    | Location                                    | Purpose                    |
+| ------------------------- | ------------------------------------------- | -------------------------- |
+| `ScryfallCardBuilder`     | `testing/builders/scryfall-card.builder.ts` | Fluent test card factory   |
+| `ScryfallListBuilder`     | `testing/builders/scryfall-list.builder.ts` | Paginated list factory     |
+| `expectOneScryfallSearch` | `testing/helpers/http-test.helpers.ts`      | Assert search HTTP call    |
+| `expectOneScryfallCard`   | `testing/helpers/http-test.helpers.ts`      | Assert detail HTTP call    |
+| `flushScryfallError`      | `testing/helpers/http-test.helpers.ts`      | Simulate 404 error body    |
+| `setupRouterTesting`      | `testing/helpers/router-test.helpers.ts`    | RouterTestingHarness setup |
+| `navigateWithQueryParams` | `testing/helpers/router-test.helpers.ts`    | Navigate with query string |
 
 ---
 
@@ -288,26 +303,26 @@ You write specs that **use** these — you don't need to build them:
 
 ## Troubleshooting
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `Expected one matching request ... found none` | `expectOne` called before `.subscribe()` | Subscribe first, then `expectOne`, then `flush` |
-| `No provider for HttpClient` | Component/service under test needs HTTP | Mock the service (preferred for component tests) or add `provideHttpClient()` + `provideHttpClientTesting()` |
-| `Expected no open requests` in `afterEach` | Subscribed in a component test but didn't flush | Mock the service so no real HTTP is triggered, or flush pending requests |
-| Test passes alone but fails in suite | Leaked subscription or shared state | Check `afterEach`; ensure `httpMock.verify()` runs |
-| `Cannot read properties of undefined` after flush | Wrong variable for result assertion | Assign in subscribe callback; assert after flush |
-| Many failures after one app change | Un-skipped specs too early | Change `it` back to `xit` for phases you haven't reached |
+| Error                                             | Cause                                           | Fix                                                                                                          |
+| ------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `Expected one matching request ... found none`    | `expectOne` called before `.subscribe()`        | Subscribe first, then `expectOne`, then `flush`                                                              |
+| `No provider for HttpClient`                      | Component/service under test needs HTTP         | Mock the service (preferred for component tests) or add `provideHttpClient()` + `provideHttpClientTesting()` |
+| `Expected no open requests` in `afterEach`        | Subscribed in a component test but didn't flush | Mock the service so no real HTTP is triggered, or flush pending requests                                     |
+| Test passes alone but fails in suite              | Leaked subscription or shared state             | Check `afterEach`; ensure `httpMock.verify()` runs                                                           |
+| `Cannot read properties of undefined` after flush | Wrong variable for result assertion             | Assign in subscribe callback; assert after flush                                                             |
+| Many failures after one app change                | Un-skipped specs too early                      | Change `it` back to `xit` for phases you haven't reached                                                     |
 
 ---
 
 ## Phase checklist (app + test together)
 
-| App phase | Test phase | Main thing you prove |
-|-----------|------------|----------------------|
-| 0 Orientation | T0 | Tests run; read a spec file |
+| App phase       | Test phase   | Main thing you prove                         |
+| --------------- | ------------ | -------------------------------------------- |
+| 0 Orientation   | T0           | Tests run; read a spec file                  |
 | 1 `getCardById` | T1 + **T1b** | HTTP service call; mock service in page spec |
-| 2 `searchCards` | T2 | Search HTTP + error handling |
-| 3 Search UI | T3 | Component inputs/outputs |
-| 4 URL state | T4 | Router query params |
-| 5 Detail UI | T5 | Page integration with mocked API |
-| 6 Syntax guide | (optional) | Smoke tests only unless you add specs |
-| Stretch | T6 | Timers, cache, debounce |
+| 2 `searchCards` | T2           | Search HTTP + error handling                 |
+| 3 Search UI     | T3           | Component inputs/outputs                     |
+| 4 URL state     | T4           | Router query params                          |
+| 5 Detail UI     | T5           | Page integration with mocked API             |
+| 6 Syntax guide  | (optional)   | Smoke tests only unless you add specs        |
+| Stretch         | T6           | Timers, cache, debounce                      |
