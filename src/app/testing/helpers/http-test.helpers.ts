@@ -1,4 +1,7 @@
-import { HttpTestingController, TestRequest } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  TestRequest,
+} from '@angular/common/http/testing';
 
 import { SCRYFALL_API_BASE_URL } from '../../core/constants/scryfall.constants';
 import { ScryfallError } from '../../core/models/scryfall.types';
@@ -10,12 +13,19 @@ export function expectOneScryfallSearch(
   page = 1,
 ): TestRequest {
   const encodedQuery = encodeURIComponent(query);
-  const url = `${SCRYFALL_API_BASE_URL}/cards/search?q=${encodedQuery}&page=${page}`;
-  return httpMock.expectOne((req) => req.url.includes('/cards/search') && req.url.includes(encodedQuery));
+  return httpMock.expectOne(
+    (req) =>
+      req.url.includes('/cards/search') &&
+      (req.params.get('q') === query ||
+        req.urlWithParams.includes(encodedQuery)),
+  );
 }
 
 /** Assert a single Scryfall card-by-id request and return the TestRequest. */
-export function expectOneScryfallCard(httpMock: HttpTestingController, id: string): TestRequest {
+export function expectOneScryfallCard(
+  httpMock: HttpTestingController,
+  id: string,
+): TestRequest {
   const url = `${SCRYFALL_API_BASE_URL}/cards/${id}`;
   return httpMock.expectOne(url);
 }

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
@@ -37,7 +37,15 @@ export class ScryfallApiService {
     page = 1,
     options?: SearchOptions,
   ): Observable<ScryfallList<ScryfallCard>> {
-    return throwError(() => new Error('TODO: Implement searchCards'));
+    let params = new HttpParams().set('q', query).set('page', page);
+
+    if (options?.order) params = params.set('order', options.order);
+    if (options?.unique) params = params.set('unique', options.unique);
+
+    return this.http.get<ScryfallList<ScryfallCard>>(
+      `${SCRYFALL_API_BASE_URL}/cards/search`,
+      { params },
+    );
   }
 
   /**
