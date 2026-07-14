@@ -9,17 +9,18 @@ import { CardTileComponent } from '../card-tile/card-tile.component';
   template: `
     <div class="card-grid">
       @if (cards().length === 0) {
-        <p class="placeholder">No cards to display — wire results from SearchPage.</p>
+        <p class="placeholder">
+          No cards to display — wire results from SearchPage.
+        </p>
+      } @else {
+        @for (card of cards(); track card.id) {
+          <app-card-tile [card]="card" (cardClick)="cardSelected.emit(card)" />
+        }
       }
       <!-- TODO(learn): @for (card of cards(); track card.id) { <app-card-tile ... /> } -->
     </div>
 
-    @if (false) {
-      <!-- EXAMPLE (disabled): -->
-      <!-- @for (card of cards(); track card.id) {
-        <app-card-tile [card]="card" (cardClick)="cardSelected.emit(card)" />
-      } -->
-    }
+    @if (false) {}
   `,
   styles: `
     .card-grid {

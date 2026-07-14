@@ -10,14 +10,16 @@ import { MatIconModule } from '@angular/material/icon';
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search cards</mat-label>
       <mat-icon matPrefix>search</mat-icon>
-      <input matInput placeholder="e.g. c:red t:creature" disabled />
+      <input
+        matInput
+        placeholder="e.g. c:red t:creature"
+        [value]="initialQuery()"
+        (input)="onQueryChange($event)"
+      />
       <!-- TODO(learn): Wire input with debounce (~300ms) and emit searchQuery -->
     </mat-form-field>
 
-    @if (false) {
-      <!-- EXAMPLE (disabled): output binding pattern -->
-      <!-- (input)="onQueryChange($event)" -->
-    }
+    @if (false) {}
   `,
   styles: `
     .search-field {
@@ -32,4 +34,9 @@ export class SearchBarComponent {
 
   /** Emits when the user submits or debounced query changes. */
   readonly searchQuery = output<string>();
+
+  onQueryChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery.emit(value.trim());
+  }
 }

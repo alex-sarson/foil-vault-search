@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 
@@ -6,6 +6,7 @@ import { SearchBarComponent } from './components/search-bar/search-bar.component
 import { CardGridComponent } from './components/card-grid/card-grid.component';
 import { ScryfallApiService } from '../../core/services/scryfall-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ScryfallCard } from '../../core/models/scryfall.types';
 
 @Component({
   selector: 'app-search-page',
@@ -31,27 +32,13 @@ import { HttpErrorResponse } from '@angular/common/http';
           <code>CardGridComponent</code>.
         </p>
 
-        <mat-list>
-          <div mat-subheader>Your TODO checklist</div>
-          <mat-list-item
-            >Wire SearchBarComponent with debounced query</mat-list-item
-          >
-          <mat-list-item>Call ScryfallApiService.searchCards()</mat-list-item>
-          <mat-list-item>Sync q and page to URL query params</mat-list-item>
-          <mat-list-item>Add mat-paginator (175 cards/page)</mat-list-item>
-          <mat-list-item>Handle loading, empty, and error states</mat-list-item>
-          <mat-list-item>Navigate to /card/:id on tile click</mat-list-item>
-        </mat-list>
+        <app-search-bar (searchQuery)="onSearch($event)" />
+        <app-card-grid
+          [cards]="cards()"
+          (cardSelected)="onCardSelected($event)"
+        />
 
-        <app-search-bar />
-        <app-card-grid />
-
-        @if (false) {
-          <!-- EXAMPLE (disabled): signals + service call -->
-          <!-- readonly query = signal(''); -->
-          <!-- readonly results = signal<ScryfallCard[]>([]); -->
-          <!-- inject(ScryfallApiService).searchCards(query()).subscribe(...) -->
-        }
+        @if (false) {}
       </mat-card-content>
     </mat-card>
   `,
@@ -67,20 +54,29 @@ import { HttpErrorResponse } from '@angular/common/http';
     }
   `,
 })
-export class SearchPage implements OnInit {
+export class SearchPage {
   // Temp function to test searchCards() in the browser console
   private readonly api = inject(ScryfallApiService);
+  readonly cards = signal<ScryfallCard[]>([]);
 
-  ngOnInit(): void {
-    this.api.searchCards('lightning').subscribe({
-      next: (list) => console.log(list),
+  onSearch(query: string): void {
+    if (!query) {
+      this.cards.set([]);
+      return;
+    }
+    this.api.searchCards(query).subscribe({
+      next: (list) => this.cards.set(list.data),
       error: (err: HttpErrorResponse) => {
         if (err.status === 404) {
-          console.log(err.error.details);
+          this.cards.set([]);
         } else {
-          console.log(err);
+          console.error(err);
         }
       },
     });
+  }
+
+  onCardSelected(card: ScryfallCard): void {
+    console.log('selected', card.id);
   }
 }

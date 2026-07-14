@@ -7,8 +7,17 @@ import { ScryfallCard } from '../../../../core/models/scryfall.types';
   selector: 'app-card-tile',
   imports: [MatCardModule],
   template: `
-    <mat-card class="card-tile" appearance="outlined">
+    <mat-card
+      class="card-tile"
+      appearance="outlined"
+      (click)="card() && cardClick.emit(card()!)"
+    >
       <!-- TODO(learn): Show image_uris.small with lazy loading -->
+      <img
+        [src]="card()?.image_uris?.small"
+        [alt]="card()?.name ?? ''"
+        loading="lazy"
+      />
       <mat-card-header>
         <mat-card-title>{{ card()?.name ?? 'Card name' }}</mat-card-title>
         <mat-card-subtitle>{{ card()?.set_name ?? 'Set' }}</mat-card-subtitle>
@@ -16,10 +25,7 @@ import { ScryfallCard } from '../../../../core/models/scryfall.types';
       <!-- TODO(learn): (click)="cardClick.emit(card()!)" and routerLink to /card/:id -->
     </mat-card>
 
-    @if (false) {
-      <!-- EXAMPLE (disabled): -->
-      <!-- <img [src]="card()!.image_uris?.small" [alt]="card()!.name" loading="lazy" /> -->
-    }
+    @if (false) {}
   `,
   styles: `
     .card-tile {
