@@ -8,6 +8,8 @@ Parallel learning track for Jasmine + Karma unit tests. Un-skip (`xit` → `it`)
 
 **If already done:** T1, T1b, and T2 may already be implemented and passing in this repo. Those sections start with a skip note.
 
+**Runtime note:** App specs live under `apps/web/`. Run tests with **`pnpm test`** from the repo root (or `pnpm --filter @foil-vault/web test`). Unit tests fake HTTP against `SCRYFALL_API_BASE_URL` (`http://localhost:3000`) — they do **not** require the API process and must not hit the network.
+
 ---
 
 ## React testing → Angular testing
@@ -40,7 +42,7 @@ For each phase:
 2. Open the listed `*.spec.ts` file(s).
 3. Change `xit` → `it` only for the tests listed in that section.
 4. Replace `fail('TODO: ...')` with real assertions.
-5. Run `npm test` and fix failures before continuing.
+5. Run `pnpm test` and fix failures before continuing.
 
 **Do not un-skip tests ahead of schedule.** Specs marked `xit` are placeholders for later phases. Un-skipping early adds noise and failures unrelated to what you're learning.
 
@@ -84,7 +86,7 @@ App Phase 0 complete.
 
 ### Step-by-step
 
-1. Run `npm test` (or `ng test --no-watch --browsers=ChromeHeadless` for CI-style)
+1. Run `pnpm test` (or `pnpm --filter @foil-vault/web test -- --no-watch --browsers=ChromeHeadless` for CI-style)
 2. Confirm all **enabled** tests pass — mainly smoke `should create` tests; exercise specs stay `xit` until later
 3. Open `src/app/core/services/scryfall-api.service.spec.ts` and read the structure:
    - `beforeEach` + `TestBed.configureTestingModule({ providers: [...] })`
@@ -95,7 +97,7 @@ App Phase 0 complete.
 
 ### Verify
 
-`ng test` / `npm test` green; skipped tests do not fail the suite.
+`ng test` / `pnpm test` green; skipped tests do not fail the suite.
 
 ### Next
 
@@ -239,7 +241,7 @@ App Phase 1 complete (page calls the API).
 
 ### Verify
 
-`npm test` green again (all enabled tests pass; skipped tests still skipped).
+`pnpm test` green again (all enabled tests pass; skipped tests still skipped).
 
 ### Next
 
@@ -909,8 +911,8 @@ You write specs that **use** these — you don't need to build them:
 - `// HINT:` — suggested matcher or setup
 - `xit` / `xdescribe` — skipped until ready; **leave these alone** until the matching phase
 - Prefer Arrange / Act / Assert in longer tests
-- Always mock HTTP in **component** unit tests — never hit real Scryfall
-- Service specs may use `HttpTestingController` (fake backend) — still no network
+- Always mock HTTP in **component** unit tests — never hit the network (local API or Scryfall)
+- Service specs may use `HttpTestingController` (fake backend against `SCRYFALL_API_BASE_URL`) — still no network / no `pnpm start` required
 
 ---
 

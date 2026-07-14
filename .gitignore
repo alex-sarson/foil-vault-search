@@ -1,15 +1,16 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
 # Compiled output
 /dist
 /tmp
 /out-tsc
 /bazel-out
+apps/*/dist
+apps/*/tmp
 
 # Node
-/node_modules
+node_modules
 npm-debug.log
 yarn-error.log
+pnpm-debug.log
 
 # IDEs and editors
 .idea/
@@ -29,10 +30,12 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
+.angular/
+**/.angular/
 .sass-cache/
 /connect.lock
 /coverage
+apps/*/coverage
 /libpeerconnection.log
 testem.log
 /typings
@@ -40,3 +43,10 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Local SQLite mirror (regenerated on first API boot)
+apps/api/data/*.db
+apps/api/data/*.db-*
+data/cards.sql
+apps/api/data/cards.sql
+apps/api/data/bulk/

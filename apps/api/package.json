@@ -1,0 +1,22 @@
+{
+  "name": "@foil-vault/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "ingest": "tsx src/index.ts --ingest-only",
+    "build": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "fastify": "^5.2.1",
+    "@fastify/cors": "^10.0.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "~5.7.2"
+  }
+}

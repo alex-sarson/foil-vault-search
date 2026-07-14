@@ -10,6 +10,8 @@ A phased learning path for building a Scryfall card search app in Angular. Compl
 
 **If already done:** Phases 1–2 (and matching tests T1–T2) may already be implemented in this repo. Those sections start with a skip note — jump to **Manual verify**, then continue.
 
+**Runtime note:** This is a **pnpm monorepo**. App sources live under `apps/web/` (paths like `src/app/...` below are relative to that package). `pnpm start` runs a local Fastify + SQLite mirror (`apps/api`, port **3000**) beside Angular (port **4200**). `SCRYFALL_API_BASE_URL` points at that local API — same `/cards/search` and `/cards/:id` shapes as Scryfall, without browser 429s. Card images still come from Scryfall’s CDN.
+
 ---
 
 ## React → Angular cheat sheet
@@ -31,7 +33,7 @@ Use this when something feels unfamiliar. You already know the concepts — Angu
 | `location.state` on navigate            | **`Router.navigate(..., { state: { card } })`**        | Pass card without re-fetch         |
 | JSX `{items.map(...)}`                  | **`@for (item of items(); track item.id)`**            | Templates (`.html` or inline)      |
 | `@/` imports                            | **`@/` not used** — relative imports from `src/app/`   | All feature files                  |
-| Vite / CRA dev server                   | **`ng serve`** (`npm start`)                           | `package.json` scripts             |
+| Vite / CRA dev server                   | **`ng serve`** via **`pnpm start`** (API + web)        | Root `package.json` scripts        |
 | Jest + React Testing Library            | **Jasmine + Karma + TestBed**                          | `*.spec.ts` files                  |
 
 **RxJS in one paragraph:** Angular HTTP returns `Observable<T>` instead of `Promise<T>`. For now, treat `.subscribe({ next, error })` like `.then()` / `.catch()`. You call the service, subscribe in the component, and assign or log the result. Deeper operators (`switchMap`, `debounceTime`) appear in later phases and Stretch.
@@ -46,7 +48,7 @@ Each app phase adds behavior; the matching test phase proves it. Work in this or
 
 1. Complete the **app phase** (implement the feature).
 2. Complete the **test phase** with the same number (un-skip and write the spec).
-3. Run **`npm test`** — fix any collateral breakage before moving on (see testing doc **T1b** after App Phase 1).
+3. Run **`pnpm test`** — fix any collateral breakage before moving on (see testing doc **T1b** after App Phase 1).
 
 If tests fail after an app change, that is normal in Angular: components that start calling services need matching test setup. The testing guide calls out when to expect this.
 
@@ -106,10 +108,10 @@ Run the app, explore the scaffold, and find TODO markers so you know where work 
 
 ### Step-by-step
 
-1. Run `npm start` (or `ng serve`) and open http://localhost:4200
+1. Run `pnpm start` and open http://localhost:4200 (API must reach `http://localhost:3000/health` first; first boot may download/shred Scryfall bulk data)
 2. Click **Search** and **Syntax Guide** in the toolbar — all routes should load without console errors
 3. Visit `/card/any-uuid-here` — the route param should appear on the page subtitle
-4. Search the codebase for `TODO(learn)` comments — those are your implementation markers
+4. Search the codebase under `apps/web/` for `TODO(learn)` comments — those are your implementation markers
 5. Open `src/app/features/search/search.page.ts` and skim:
    - The `@Component` decorator
    - `imports: [...]`
@@ -170,7 +172,7 @@ Implement `getCardById()` and see real card JSON in the browser console.
    return this.http.get<ScryfallCard>(`${SCRYFALL_API_BASE_URL}/cards/${id}`);
    ```
 
-   `HttpClient` is already available as `this.http` via `inject(HttpClient)`. `SCRYFALL_API_BASE_URL` is imported from `scryfall.constants.ts`.
+   `HttpClient` is already available as `this.http` via `inject(HttpClient)`. `SCRYFALL_API_BASE_URL` is imported from `scryfall.constants.ts` and defaults to the **local mirror** (`http://localhost:3000`), not `https://api.scryfall.com`.
 
 2. **Wire the page** — In `card-detail.page.ts`:
    - Inject the service (same pattern as `inject(ActivatedRoute)`):
@@ -199,9 +201,10 @@ Implement `getCardById()` and see real card JSON in the browser console.
 
 ### Manual verify
 
-1. Visit `/card/91fdb56b-54d5-4272-8319-505ff987fe9b` (Sol Ring)
-2. Open DevTools → Console
-3. You should see a Scryfall card object with `"name": "Sol Ring"` (or similar)
+1. Ensure `pnpm start` finished ingest (`GET http://localhost:3000/health` returns `{ ok: true, cards: … }`)
+2. Visit `/card/91fdb56b-54d5-4272-8319-505ff987fe9b` (Sol Ring — present in oracle-cards after ingest)
+3. Open DevTools → Console
+4. You should see a card object with `"name": "Sol Ring"` (or similar)
 
 ### Common mistakes
 
@@ -210,7 +213,8 @@ Implement `getCardById()` and see real card JSON in the browser console.
 | Nothing logs                                       | You forgot `.subscribe()` — Observables are lazy                        |
 | `NullInjectorError: HttpClient` in the **app**     | Check `provideHttpClient()` exists in `app.config.ts`                   |
 | `NullInjectorError` in **tests** after this change | Expected — do **T1b** next                                              |
-| Wrong UUID / 404                                   | Use the Sol Ring id above, or pick any id from a Scryfall card page URL |
+| Network error / connection refused                 | Local API not up — use `pnpm start` (not web alone)                     |
+| Wrong UUID / 404                                   | Use the Sol Ring id above, or pick an id from a successful search       |
 
 **React comparison:** `ScryfallApiService` ≈ a module exporting `fetchCardById`. `ngOnInit` ≈ `useEffect(() => { fetchCardById(id).then(console.log) }, [id])`.
 
@@ -218,7 +222,7 @@ Implement `getCardById()` and see real card JSON in the browser console.
 
 Do testing **T1** and immediately **T1b** before Phase 2. Do **not** un-skip the other `CardDetailPage` specs yet (those are T5).
 
-**Docs:** [Scryfall GET /cards/:id](https://scryfall.com/docs/api/cards/id), [Angular HttpClient](https://angular.dev/guide/http)
+**Docs:** [Local mirror](./apps/api/README.md), [Scryfall card shape](https://scryfall.com/docs/api/cards), [Angular HttpClient](https://angular.dev/guide/http)
 
 ---
 
@@ -246,7 +250,7 @@ Optionally (temporary only): call from `search.page.ts` or the browser for manua
 ### Concepts you need
 
 - **`HttpParams`** — Angular’s safe query-string builder (encodes values for you)
-- **Scryfall empty search** — zero matches return HTTP **404** with `{ object: 'error', ... }`, **not** `{ data: [] }`
+- **Empty search** — the local mirror matches Scryfall: zero matches return HTTP **404** with `{ object: 'error', ... }`, **not** `{ data: [] }`
 - **Return type** — `Observable<ScryfallList<ScryfallCard>>`
 
 ### Step-by-step
@@ -302,7 +306,7 @@ Optionally (temporary only): call from `search.page.ts` or the browser for manua
 
 Do testing **T2**. When you start Phase 3, **remove** the temporary `searchCards('lightning')` on page init so searches are driven only by the search bar.
 
-**Docs:** [Scryfall search](https://scryfall.com/docs/api/cards/search)
+**Docs:** [Local mirror search](./apps/api/README.md), [Scryfall search shape](https://scryfall.com/docs/api/cards/search)
 
 ---
 
@@ -814,7 +818,7 @@ Populate guide content and wire **Try it** buttons that open search with a pre-f
 
 | In scope                                    | Out of scope            |
 | ------------------------------------------- | ----------------------- |
-| Fill `description` + `examples` per section | Changing Scryfall API   |
+| Fill `description` + `examples` per section | Changing the local API   |
 | Try-it → `/search?q=...`                    | Re-implementing Phase 4 |
 
 **Dependency:** Try-it is most useful after Phase 4 (URL `q` sync). If Phase 4 is done, landing on `/search?q=c:red` should run the search.
@@ -879,7 +883,9 @@ Populate guide content and wire **Try it** buttons that open search with a pre-f
 
 Optional syntax-guide specs in the testing track; or move on to Stretch / T6.
 
-**Docs:** [Scryfall syntax](https://scryfall.com/docs/syntax)
+**Docs:** [Scryfall syntax](https://scryfall.com/docs/syntax) (reference), [local parser coverage](./apps/api/README.md) (what Try-it queries support)
+
+Examples run against the **local** search parser (broad Scryfall-like coverage, not bit-for-bit identical to production Scryfall). Prefer queries from the Phase 6 sections (colors, types, oracle text, CMC, rarity, sets, legality, prices).
 
 ---
 
@@ -927,6 +933,8 @@ Wire `set` on successful detail loads (Phase 5 already suggested this).
 
 **File:** `search-rate-limiter.service.ts`
 
+**Context:** Not required to avoid 429s against the local API. Useful as a portable skill if you ever point `SCRYFALL_API_BASE_URL` at production Scryfall (~2 search requests/sec).
+
 Use `RATE_LIMIT_MS` (500) from `scryfall.constants.ts`. Wrap factories so overlapping `schedule(() => httpCall$)` calls are spaced:
 
 ```ts
@@ -956,13 +964,18 @@ Do testing **T6** for the stretch pieces you implemented.
 
 ---
 
-## Scryfall API quick reference
+## Local API quick reference
 
-| Endpoint                     | Rate limit | Notes                             |
-| ---------------------------- | ---------- | --------------------------------- |
-| `GET /cards/search?q=&page=` | ~2/sec     | 175 cards/page; encode `q`        |
-| `GET /cards/:id`             | ~10/sec    | UUID from search results          |
-| Images on `*.scryfall.io`    | none       | Use `image_uris.small` / `normal` |
+`SCRYFALL_API_BASE_URL` = `http://localhost:3000` (see `scryfall.constants.ts`).
+
+| Endpoint                     | Notes                                                                   |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `GET /health`                | Ready after ingest; `pnpm start` waits on this before launching Angular |
+| `GET /cards/search?q=&page=` | 175 cards/page; encode `q`; empty → **404** error body                  |
+| `GET /cards/:id`             | UUID from search results                                                |
+| Images on `*.scryfall.io`    | Still loaded from Scryfall CDN (no local image host)                    |
+
+Production Scryfall rate limits (~2/sec search) do **not** apply to the local mirror. See [apps/api/README.md](./apps/api/README.md) for query syntax coverage.
 
 ---
 
@@ -987,5 +1000,6 @@ Do testing **T6** for the stretch pieces you implemented.
 | `Can't bind to 'routerLink'`                             | Missing `RouterLink` in standalone `imports`                                   | Add `RouterLink` to that component’s `imports`                                     |
 | `Observable` never emits in test                         | Called `expectOne` before `.subscribe()`                                       | Subscribe first, then assert the HTTP request (see T1)                             |
 | Changes don't show in UI                                 | Forgot `detectChanges()` in tests, or signal not updated                       | Call `fixture.detectChanges()` after state changes; use `.set()` on signals        |
-| `ng serve` works but test fails                          | Tests use isolated `TestBed`, not full `app.config.ts`                         | Provide dependencies explicitly in each spec's `beforeEach`                        |
-| Empty search looks like a hard failure                   | Scryfall returns 404 for zero hits                                             | Treat `status === 404` as empty results                                            |
+| `pnpm start` / `ng serve` works but test fails       | Tests use isolated `TestBed`, not full `app.config.ts`                         | Provide dependencies explicitly in each spec's `beforeEach`                        |
+| Empty search looks like a hard failure                   | Local mirror returns 404 for zero hits (Scryfall-compatible)                   | Treat `status === 404` as empty results                                            |
+| `ERR_CONNECTION_REFUSED` to `:3000`                      | API not running or still ingesting                                             | Use `pnpm start`; wait for `/health`; first boot can take several minutes          |

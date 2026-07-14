@@ -11,9 +11,9 @@ import {
 import { SCRYFALL_API_BASE_URL } from '../constants/scryfall.constants';
 
 /**
- * HTTP client for the Scryfall REST API.
+ * HTTP client for the local Scryfall-shaped card API (`SCRYFALL_API_BASE_URL`).
  *
- * @see https://scryfall.com/docs/api
+ * @see apps/api/README.md
  * @see EXERCISES.md Phase 1–2
  */
 @Injectable({ providedIn: 'root' })
@@ -21,17 +21,16 @@ export class ScryfallApiService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Search for cards matching a Scryfall query string.
-   *
-   * Endpoint: `GET /cards/search?q=&page=`
-   * Rate limit: ~2 requests/sec — consider debounceTime + SearchRateLimiterService.
-   *
-   * @see https://scryfall.com/docs/api/cards/search
-   *
-   * TODO(learn): Implement HTTP call. Encode `query` with encodeURIComponent.
-   * HINT: Zero results returns a ScryfallError (404), not an empty list — handle in caller or here.
-   * HINT: Use switchMap in the search page to cancel in-flight requests.
-   */
+ * Search for cards matching a Scryfall-style query string (served by the local mirror).
+ *
+ * Endpoint: `GET /cards/search?q=&page=`
+ *
+ * @see apps/api/README.md
+ *
+ * TODO(learn): Implement HTTP call. Encode `query` with encodeURIComponent.
+ * HINT: Zero results returns a ScryfallError (404), not an empty list — handle in caller or here.
+ * HINT: Use switchMap in the search page to cancel in-flight requests.
+ */
   searchCards(
     query: string,
     page = 1,
@@ -49,12 +48,11 @@ export class ScryfallApiService {
   }
 
   /**
-   * Fetch a single card by Scryfall UUID.
+   * Fetch a single card by Scryfall UUID from the local mirror.
    *
    * Endpoint: `GET /cards/:id`
-   * Rate limit: ~10 requests/sec.
    *
-   * @see https://scryfall.com/docs/api/cards/id
+   * @see apps/api/README.md
    *
    * TODO(learn): Implement HTTP call — start here in Phase 1.
    * HINT: Return typed Observable<ScryfallCard> from HttpClient.get.
