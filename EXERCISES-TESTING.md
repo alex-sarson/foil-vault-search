@@ -6,10 +6,10 @@ Parallel learning track for Jasmine + Karma unit tests. Un-skip (`xit` → `it`)
 
 **How to use these guides:** Each phase has detailed step-by-step instructions with copyable assertions. After each code block you will see three short notes:
 
-| Label | Meaning |
-| ----- | ------- |
-| **Why** | Why the test is written this way — what behavior you are proving |
-| **What** | What the assertion or setup does |
+| Label                  | Meaning                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| **Why**                | Why the test is written this way — what behavior you are proving                                   |
+| **What**               | What the assertion or setup does                                                                   |
 | **How the test works** | TestBed / `HttpTestingController` / `fakeAsync` mechanics — order of operations and what runs when |
 
 If a spec is already green, skip to **Verify**. Prefer reading the `// TODO(test-learn):` comments in the `*.spec.ts` files alongside this doc.
@@ -114,6 +114,7 @@ App Phase 0 complete.
    **Why (T0):** Before writing assertions, understand the test harness you'll reuse in T1–T2.
    **What:** A service spec uses the real service + fake HTTP backend, not a mocked service.
    **How the test works:** `afterEach(() => httpMock.verify())` fails the suite if any request was not flushed — catches leaked HTTP.
+
 4. Compare to React mentally: `TestBed.configureTestingModule` ≈ wrapping in providers; `createComponent` ≈ `render()`
 
 ### Verify
@@ -550,10 +551,10 @@ Prove SearchPage wires the bar to `searchCards`, and (after Phase 4) that `q` sy
 
 ### In scope / out of scope
 
-| In scope                                   | Out of scope                 |
-| ------------------------------------------ | ---------------------------- |
-| Existing `apps/web/src/app/features/search/search.page.spec.ts` xits | Detail page tests (T5) |
-| Optional new test for `q` query-param sync | Real HTTP / Scryfall network |
+| In scope                                                             | Out of scope                 |
+| -------------------------------------------------------------------- | ---------------------------- |
+| Existing `apps/web/src/app/features/search/search.page.spec.ts` xits | Detail page tests (T5)       |
+| Optional new test for `q` query-param sync                           | Real HTTP / Scryfall network |
 
 ### Prerequisites
 
@@ -997,8 +998,8 @@ Only un-skip if you want; the main track does not require them.
 
 You write specs that **use** these — you don't need to build them:
 
-| Helper                                      | Location                                    | Purpose                    |
-| ------------------------------------------- | ------------------------------------------- | -------------------------- |
+| Helper                                      | Location                                                     | Purpose                    |
+| ------------------------------------------- | ------------------------------------------------------------ | -------------------------- |
 | `ScryfallCardBuilder`                       | `apps/web/src/app/testing/builders/scryfall-card.builder.ts` | Fluent test card factory   |
 | `ScryfallListBuilder`                       | `apps/web/src/app/testing/builders/scryfall-list.builder.ts` | Paginated list factory     |
 | `expectOneScryfallSearch`                   | `apps/web/src/app/testing/helpers/http-test.helpers.ts`      | Assert search HTTP call    |

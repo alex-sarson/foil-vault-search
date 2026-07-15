@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 
@@ -7,6 +7,7 @@ import { CardGridComponent } from './components/card-grid/card-grid.component';
 import { ScryfallApiService } from '../../core/services/scryfall-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ScryfallCard } from '../../core/models/scryfall.types';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-search-page',
@@ -32,7 +33,10 @@ import { ScryfallCard } from '../../core/models/scryfall.types';
           <code>CardGridComponent</code>.
         </p>
 
-        <app-search-bar (searchQuery)="onSearch($event)" />
+        <app-search-bar
+          [initialQuery]="initialQuery()"
+          (searchQuery)="onSearch($event)"
+        />
         <app-card-grid
           [cards]="cards()"
           (cardSelected)="onCardSelected($event)"
@@ -54,17 +58,26 @@ import { ScryfallCard } from '../../core/models/scryfall.types';
     }
   `,
 })
-export class SearchPage {
+export class SearchPage implements OnInit {
   // Temp function to test searchCards() in the browser console
   private readonly api = inject(ScryfallApiService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
   readonly cards = signal<ScryfallCard[]>([]);
 
+  readonly initialQuery = signal('');
+
   onSearch(query: string): void {
-    if (!query) {
-      this.cards.set([]);
-      return;
-    }
-    this.api.searchCards(query).subscribe({
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { q: query || null, page: 1 },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  private runSearch(query: string, page: number): void {
+    this.api.searchCards(query, page).subscribe({
       next: (list) => this.cards.set(list.data),
       error: (err: HttpErrorResponse) => {
         if (err.status === 404) {
@@ -77,6 +90,19 @@ export class SearchPage {
   }
 
   onCardSelected(card: ScryfallCard): void {
-    console.log('selected', card.id);
+    void this.router.navigate(['/card', card.id], { state: { card } });
+  }
+
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      const q = params.get('q') ?? '';
+      const page = Number(params.get('page') ?? '1') || 1;
+      this.initialQuery.set(q);
+      if (q) {
+        this.runSearch(q, page);
+      } else {
+        this.cards.set([]);
+      }
+    });
   }
 }
