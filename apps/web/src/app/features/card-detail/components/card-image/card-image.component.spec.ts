@@ -19,14 +19,17 @@ describe('CardImageComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  // TODO(test-learn): Un-skip after wiring image display
-  xit('should render img when imageUris provided', () => {
+  it('should render img when imageUris provided', () => {
     fixture.componentRef.setInput('imageUris', {
+      small: 'https://example.com/s.jpg',
       normal: 'https://example.com/card.jpg',
+      large: 'https://example.com/l.jpg',
     });
     fixture.componentRef.setInput('alt', 'Test Card');
     fixture.detectChanges();
-    const img = fixture.nativeElement.querySelector('img');
-    expect(img?.src).toContain('example.com/card.jpg');
+
+    expect(fixture.nativeElement.querySelector('img')?.src).toContain(
+      'example.com/card.jpg',
+    );
   });
 });

@@ -4,6 +4,9 @@ import { provideRouter, ActivatedRoute } from '@angular/router';
 import { CardDetailPage } from './card-detail.page';
 import { ScryfallApiService } from '../../core/services/scryfall-api.service';
 import { of } from 'rxjs';
+import { cardDetailSample } from '../../testing/fixtures';
+import { CardCacheService } from '../../core/services/card-cache.service';
+import { inject } from '@angular/core';
 
 describe('CardDetailPage', () => {
   let fixture: ComponentFixture<CardDetailPage>;
@@ -24,7 +27,15 @@ describe('CardDetailPage', () => {
           useValue: {
             getCardById: jasmine
               .createSpy('getCardById')
-              .and.returnValue(of({})),
+              .and.returnValue(of({ cardDetailSample })),
+          },
+        },
+        {
+          provide: CardCacheService,
+          useValue: {
+            get: () => undefined,
+            set: () => undefined,
+            evict: () => undefined,
           },
         },
       ],
@@ -38,12 +49,17 @@ describe('CardDetailPage', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  // TODO(test-learn): Un-skip after implementing card detail loading
-  xit('should read route param id', () => {
+  it('should read route param id', () => {
     expect(fixture.componentInstance.cardId).toBe('test-card-id');
   });
 
-  xit('should load card from service', () => {
-    fail('TODO: Mock ScryfallApiService.getCardById and assert card renders');
+  it('should load card from service', () => {
+    const api = inject(ScryfallApiService);
+    expect(api.getCardById).toHaveBeenCalledWith('test-card-id');
+
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain(
+      (cardDetailSample as { name: string }).name,
+    );
   });
 });

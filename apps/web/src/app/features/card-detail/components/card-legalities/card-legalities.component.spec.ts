@@ -18,13 +18,13 @@ describe('CardLegalitiesComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  // TODO(test-learn): Un-skip after wiring legalities table
-  xit('should render format rows from legalities @Input', () => {
+  it('should render format rows from legalities @Input', () => {
     fixture.componentRef.setInput('legalities', {
       modern: 'legal',
       standard: 'not_legal',
     });
     fixture.detectChanges();
+
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('modern');
     expect(text).toContain('legal');
