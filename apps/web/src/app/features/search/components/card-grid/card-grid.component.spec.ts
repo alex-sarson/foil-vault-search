@@ -19,14 +19,15 @@ describe('CardGridComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  // TODO(test-learn): Un-skip after implementing CardGridComponent
-  xit('should render N tiles from cards @Input', () => {
+  it('should render N tiles from cards @Input', () => {
     const cards = [
       ScryfallCardBuilder.create().withName('Bolt').build(),
       ScryfallCardBuilder.create().withName('Shock').build(),
     ];
     fixture.componentRef.setInput('cards', cards);
     fixture.detectChanges();
-    fail('TODO: Assert two app-card-tile elements');
+
+    const tiles = fixture.nativeElement.querySelectorAll('app-card-tile');
+    expect(tiles.length).toBe(2);
   });
 });

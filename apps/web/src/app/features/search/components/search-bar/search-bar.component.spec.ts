@@ -18,9 +18,20 @@ describe('SearchBarComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  // TODO(test-learn): Un-skip after implementing SearchBarComponent
-  xit('should emit searchQuery when user types', () => {
-    fail('TODO: Simulate input and assert searchQuery output');
+  it('should emit searchQuery when user types', () => {
+    const emissions: string[] = [];
+    fixture.componentInstance.searchQuery.subscribe((q) => emissions.push(q));
+
+    const inputEl: HTMLInputElement =
+      fixture.nativeElement.querySelector('input');
+    expect(inputEl).toBeTruthy();
+    expect(inputEl.disabled).toBeFalse();
+
+    inputEl.value = 'bolt';
+    inputEl.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(emissions).toContain('bolt');
   });
 
   xit('should debounce emissions (~300ms)', () => {
