@@ -8,7 +8,7 @@ import { ScryfallCardFace } from '../../../../core/models/scryfall.types';
   imports: [MatCardModule],
   template: `
     <div class="card-faces">
-      @if (faces().length === 0) {
+      @if (faces().length > 0) {
         @for (face of faces(); track face.name) {
           <mat-card>
             <mat-card-title>{{ face.name }}</mat-card-title>

@@ -6,7 +6,6 @@ import { ScryfallApiService } from '../../core/services/scryfall-api.service';
 import { of } from 'rxjs';
 import { cardDetailSample } from '../../testing/fixtures';
 import { CardCacheService } from '../../core/services/card-cache.service';
-import { inject } from '@angular/core';
 
 describe('CardDetailPage', () => {
   let fixture: ComponentFixture<CardDetailPage>;
@@ -27,7 +26,7 @@ describe('CardDetailPage', () => {
           useValue: {
             getCardById: jasmine
               .createSpy('getCardById')
-              .and.returnValue(of({ cardDetailSample })),
+              .and.returnValue(of(cardDetailSample)),
           },
         },
         {
@@ -54,7 +53,7 @@ describe('CardDetailPage', () => {
   });
 
   it('should load card from service', () => {
-    const api = inject(ScryfallApiService);
+    const api = TestBed.inject(ScryfallApiService);
     expect(api.getCardById).toHaveBeenCalledWith('test-card-id');
 
     fixture.detectChanges();

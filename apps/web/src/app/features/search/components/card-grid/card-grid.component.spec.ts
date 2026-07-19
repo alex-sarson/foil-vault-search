@@ -21,8 +21,8 @@ describe('CardGridComponent', () => {
 
   it('should render N tiles from cards @Input', () => {
     const cards = [
-      ScryfallCardBuilder.create().withName('Bolt').build(),
-      ScryfallCardBuilder.create().withName('Shock').build(),
+      ScryfallCardBuilder.create().withId('bolt-id').withName('Bolt').build(),
+      ScryfallCardBuilder.create().withId('shock-id').withName('Shock').build(),
     ];
     fixture.componentRef.setInput('cards', cards);
     fixture.detectChanges();
