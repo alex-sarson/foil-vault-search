@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
+import { RouterLink } from '@angular/router';
 
 import { SYNTAX_SECTIONS } from './syntax-sections.data';
 
 @Component({
   selector: 'app-syntax-guide-page',
-  imports: [MatCardModule, MatListModule, MatButtonModule],
+  imports: [MatCardModule, MatListModule, MatButtonModule, RouterLink],
   template: `
     <mat-card appearance="outlined">
       <mat-card-header>
@@ -17,13 +18,18 @@ import { SYNTAX_SECTIONS } from './syntax-sections.data';
 
       <mat-card-content>
         <p>
-          Fill in <code>syntax-sections.data.ts</code> with descriptions and example queries.
-          Wire "Try it" buttons to navigate to <code>/search?q=...</code>.
+          Fill in <code>syntax-sections.data.ts</code> with descriptions and
+          example queries. Wire "Try it" buttons to navigate to
+          <code>/search?q=...</code>.
         </p>
 
         <p>
           Official docs:
-          <a href="https://scryfall.com/docs/syntax" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://scryfall.com/docs/syntax"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Scryfall search reference
           </a>
         </p>
@@ -35,9 +41,19 @@ import { SYNTAX_SECTIONS } from './syntax-sections.data';
               @if (section.description) {
                 <span matListItemLine>{{ section.description }}</span>
               } @else {
-                <span matListItemLine class="todo">TODO: Add description and examples</span>
+                <span matListItemLine class="todo"
+                  >TODO: Add description and examples</span
+                >
               }
-              <!-- TODO(learn): Try it button → [routerLink]="['/search']" [queryParams]="{ q: example.query }" -->
+              @for (example of section.examples; track example.query) {
+                <a
+                  mat-button
+                  [routerLink]="['/search']"
+                  [queryParams]="{ q: example.query }"
+                >
+                  Try it: {{ example.label }}
+                </a>
+              }
             </mat-list-item>
           }
         </mat-list>
