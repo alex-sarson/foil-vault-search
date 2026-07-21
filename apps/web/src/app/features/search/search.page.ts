@@ -19,20 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   ],
   template: `
     <mat-card appearance="outlined">
-      <mat-card-header>
-        <mat-card-title>Search</mat-card-title>
-        <mat-card-subtitle
-          >Find Magic cards using Scryfall syntax</mat-card-subtitle
-        >
-      </mat-card-header>
-
       <mat-card-content>
-        <p>
-          Implement search here. Wire <code>SearchBarComponent</code> output to
-          <code>ScryfallApiService.searchCards()</code>. Display results in
-          <code>CardGridComponent</code>.
-        </p>
-
         <app-search-bar
           [initialQuery]="initialQuery()"
           (searchQuery)="onSearch($event)"

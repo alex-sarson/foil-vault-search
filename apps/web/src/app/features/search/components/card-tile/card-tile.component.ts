@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, effect, input, output } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 
 import { ScryfallCard } from '../../../../core/models/scryfall.types';
@@ -12,17 +12,15 @@ import { ScryfallCard } from '../../../../core/models/scryfall.types';
       appearance="outlined"
       (click)="card() && cardClick.emit(card()!)"
     >
-      <!-- TODO(learn): Show image_uris.small with lazy loading -->
       <img
-        [src]="card()?.image_uris?.small"
+        [src]="
+          card()?.image_uris?.small ??
+          card()?.card_faces?.[0]?.image_uris?.small ??
+          null
+        "
         [alt]="card()?.name ?? ''"
         loading="lazy"
       />
-      <mat-card-header>
-        <mat-card-title>{{ card()?.name ?? 'Card name' }}</mat-card-title>
-        <mat-card-subtitle>{{ card()?.set_name ?? 'Set' }}</mat-card-subtitle>
-      </mat-card-header>
-      <!-- TODO(learn): (click)="cardClick.emit(card()!)" and routerLink to /card/:id -->
     </mat-card>
 
     @if (false) {}
@@ -30,10 +28,19 @@ import { ScryfallCard } from '../../../../core/models/scryfall.types';
   styles: `
     .card-tile {
       cursor: pointer;
+      overflow: hidden;
     }
   `,
 })
 export class CardTileComponent {
   readonly card = input<ScryfallCard | null>(null);
   readonly cardClick = output<ScryfallCard>();
+
+  constructor() {
+    effect(() => {
+      if (this.card()?.name.includes('Altar')) {
+        console.log(this.card());
+      }
+    });
+  }
 }

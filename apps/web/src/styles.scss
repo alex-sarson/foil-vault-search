@@ -1,4 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --article-width: unset;
+  --article-margin: 0 auto;
+}
+
+@media screen and (min-width: 1100px) {
+  :root {
+    --article-width: 1000px;
+  }
+}
+
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

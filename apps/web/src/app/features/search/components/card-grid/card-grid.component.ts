@@ -17,7 +17,6 @@ import { CardTileComponent } from '../card-tile/card-tile.component';
           <app-card-tile [card]="card" (cardClick)="cardSelected.emit(card)" />
         }
       }
-      <!-- TODO(learn): @for (card of cards(); track card.id) { <app-card-tile ... /> } -->
     </div>
 
     @if (false) {}
@@ -25,8 +24,8 @@ import { CardTileComponent } from '../card-tile/card-tile.component';
   styles: `
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 5px;
     }
 
     .placeholder {

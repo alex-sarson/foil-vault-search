@@ -1,5 +1,6 @@
 import {
   Component,
+  effect,
   inject,
   OnInit,
   runInInjectionContext,
@@ -71,6 +72,12 @@ export class CardDetailPage implements OnInit {
   private readonly api = inject(ScryfallApiService);
   private readonly cache = inject(CardCacheService);
   readonly cardId = this.route.snapshot.paramMap.get('id') ?? '';
+
+  constructor() {
+    effect(() => {
+      console.log(this.card());
+    });
+  }
 
   ngOnInit(): void {
     if (!this.cardId) return;

@@ -5,13 +5,29 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatButtonModule,
+  ],
   template: `
     <mat-toolbar color="primary">
-      <span class="app-title">Foil Vault Search</span>
-      <span class="spacer"></span>
-      <a mat-button routerLink="/search" routerLinkActive="active-link">Search</a>
-      <a mat-button routerLink="/syntax" routerLinkActive="active-link">Syntax Guide</a>
+      <div class="toolbar-wrapper">
+        <div>
+          <span class="app-title">Foil Vault Search</span>
+          <span class="spacer"></span>
+        </div>
+        <div>
+          <a mat-button routerLink="/search" routerLinkActive="active-link"
+            >Search</a
+          >
+          <a mat-button routerLink="/syntax" routerLinkActive="active-link"
+            >Syntax Guide</a
+          >
+        </div>
+      </div>
     </mat-toolbar>
 
     <main class="main-content">
@@ -20,8 +36,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 
     <footer class="app-footer">
       Card data provided by
-      <a href="https://scryfall.com" target="_blank" rel="noopener noreferrer">Scryfall</a>.
-      Not affiliated with Wizards of the Coast.
+      <a href="https://scryfall.com" target="_blank" rel="noopener noreferrer"
+        >Scryfall</a
+      >. Not affiliated with Wizards of the Coast.
     </footer>
   `,
   styles: `
@@ -36,6 +53,18 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     .main-content {
       padding: 1.5rem;
       min-height: calc(100vh - 128px);
+    }
+
+    .main-content,
+    .toolbar-wrapper {
+      width: var(--article-width);
+      margin: var(--article-margin);
+    }
+
+    .toolbar-wrapper {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
     }
 
     .app-footer {
